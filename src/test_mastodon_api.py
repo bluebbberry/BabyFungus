@@ -16,4 +16,4 @@ def test_post_to_mastodon(mastodon, monkeypatch):
 
     monkeypatch.setattr("requests.post", mock_post)
 
-    assert mastodon.post_to_mastodon("Test message") == True
+    assert mastodon.post_status("Test message") == True

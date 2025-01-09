@@ -8,12 +8,21 @@ class MastodonClient:
         self.instance_url = instance_url
         self.hashtag = hashtag
 
-    def post_to_mastodon(self, content):
-        requests.post(
-            self.instance_url,
-            headers={"Authorization": f"Bearer {self.api_token}"},
-            data={"status": content}
-        )
+    def post_status(self, status_text):
+        url = f"{self.instance_url}/api/v1/statuses"
+        payload = {'status': status_text}
+        headers = {
+            'Authorization': f'Bearer {self.api_token}',
+            'Content-Type': 'application/json'
+        }
+
+        try:
+            response = requests.post(url, headers=headers, json=payload)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"Error posting status: {e}")
+            return None
 
     def fetch_and_respond_to_mastodon_requests(self, model):
         base_url = f"{self.instance_url}/api/v1"
@@ -43,9 +52,9 @@ class MastodonClient:
                     try:
                         input_data = np.array(eval(content.split("predict:")[1].strip()))
                         prediction = input_data @ model
-                        self.post_to_mastodon(f"Prediction: {prediction.tolist()}")
+                        self.post_status(f"Prediction: {prediction.tolist()}")
                     except Exception as e:
-                        self.post_to_mastodon(f"Error processing request: {str(e)}")
+                        self.post_status(f"Error processing request: {str(e)}")
         else:
             print(f"Error: {response.status_code}")
             return None
