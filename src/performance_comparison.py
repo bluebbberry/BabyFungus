@@ -1,7 +1,7 @@
 # performance_comparison.py
 import numpy as np
 import requests
-from .mastodon_client import MastodonClient
+from mastodon_client import MastodonClient
 
 class PerformanceComparison:
     def __init__(self, model, api_token, api_url, group_switch_threshold=1.5):

@@ -1,7 +1,7 @@
 # main.py
 import threading
-from src.federated_learning import FederatedLearning
-from src.mastodon_client import MastodonClient
+from federated_learning import FederatedLearning
+from mastodon_client import MastodonClient
 import os
 from dotenv import load_dotenv, dotenv_values
 # loading variables from .env file
