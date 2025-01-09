@@ -4,7 +4,7 @@ from mastodon_client import MastodonClient
 
 @pytest.fixture
 def mastodon():
-    return MastodonClient(api_token="test_token", api_url="https://mastodon.social")
+    return MastodonClient(api_token="test_token", instance_url="https://mastodon.social")
 
 
 def test_post_to_mastodon(mastodon, monkeypatch):
@@ -16,4 +16,4 @@ def test_post_to_mastodon(mastodon, monkeypatch):
 
     monkeypatch.setattr("requests.post", mock_post)
 
-    assert mastodon.post_to_mastodon("Test message") == True
+    assert mastodon.post_status("Test message") == True

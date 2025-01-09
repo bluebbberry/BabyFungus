@@ -12,7 +12,8 @@ def start_training():
     federated_learning.train()
 
 def start_mastodon_interaction():
-    mastodon_api = MastodonClient(api_token=os.getenv("MASTODON_API_TOKEN"), api_url="https://mastodon.social/api/v1/statuses", hashtag="#" + os.getenv("NUTRIAL_TAG"))
+    mastodon_api = MastodonClient(api_token=os.getenv("MASTODON_API_KEY"), instance_url=os.getenv("MASTODON_INSTANCE_URL"), hashtag="#" + os.getenv("NUTRIAL_TAG"))
+    mastodon_api.post_status("test")
     mastodon_api.fetch_and_respond_to_mastodon_requests(model=None)  # Provide the model here if needed
 
 if __name__ == "__main__":
