@@ -1,7 +1,7 @@
 # performance_comparison.py
 import numpy as np
 import requests
-from mastodon_api import MastodonAPI
+from mastodon_client import MastodonClient
 
 class PerformanceComparison:
     def __init__(self, model, api_token, api_url, group_switch_threshold=1.5):
@@ -31,5 +31,5 @@ class PerformanceComparison:
 
     def switch_group(self):
         self.model = np.random.rand(3)
-        mastodon_api = MastodonAPI(api_token=self.api_token, api_url=self.api_url, hashtag="#babyfungus")
+        mastodon_api = MastodonClient(api_token=self.api_token, api_url=self.api_url, hashtag="#babyfungus")
         mastodon_api.post_to_mastodon("Switched to a new learning group based on performance comparison.")
