@@ -1,5 +1,6 @@
 # mastodon_api.py
 import requests
+import numpy as np
 
 class MastodonClient:
     def __init__(self, api_token, api_url, hashtag):

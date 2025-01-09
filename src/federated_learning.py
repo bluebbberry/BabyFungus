@@ -1,8 +1,8 @@
 # federated_learning.py
 import numpy as np
 import time
-from rdf_knowledge_graph import RDFKnowledgeGraph
-from mastodon_client import MastodonClient
+from .rdf_knowledge_graph import RDFKnowledgeGraph
+from .mastodon_client import MastodonClient
 
 class FederatedLearning:
     def __init__(self, model_size=3, learning_rate=0.01):
