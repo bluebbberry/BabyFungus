@@ -2,6 +2,9 @@
 import numpy as np
 import requests
 from mastodon_client import MastodonClient
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 class PerformanceComparison:
     def __init__(self, model, api_token, api_url, group_switch_threshold=1.5):
@@ -16,8 +19,11 @@ class PerformanceComparison:
         for other_group_result in other_group_results:
             other_performance = np.linalg.norm(other_group_result)
             if other_performance > current_performance:
+                logging.info("Switching to a new model. Current model underperforming.")
                 self.switch_group()
                 break
+            else:
+                logging.info("Current model is performing well.")
 
     def fetch_other_group_results(self):
         query = """
