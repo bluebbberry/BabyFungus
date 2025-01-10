@@ -5,9 +5,6 @@ import time
 from rdf_knowledge_graph import RDFKnowledgeGraph
 from mastodon_client import MastodonClient
 import os
-from dotenv import load_dotenv, dotenv_values
-# loading variables from .env file
-load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 
