@@ -1,12 +1,13 @@
 # mastodon_api.py
 import requests
 import numpy as np
+import os
 
 class MastodonClient:
-    def __init__(self, api_token, instance_url, hashtag):
-        self.api_token = api_token
-        self.instance_url = instance_url
-        self.hashtag = hashtag
+    def __init__(self):
+        self.api_token = os.getenv("MASTODON_API_KEY")
+        self.instance_url = os.getenv("MASTODON_INSTANCE_URL")
+        self.hashtag = "#" + os.getenv("NUTRIAL_TAG")
 
     def post_status(self, status_text):
         url = f"{self.instance_url}/api/v1/statuses"
