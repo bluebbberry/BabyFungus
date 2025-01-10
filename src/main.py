@@ -30,11 +30,12 @@ class BabyFungus:
 
     def start(self):
         switch_team = True
+        found_initial_team = False
         i = 0
         while True:
             logging.info(f"[START] Starting epoche {i} (at {datetime.datetime.now()})")
             try:
-                if switch_team:
+                if switch_team or not found_initial_team:
                     logging.info("[CHECK] Searching for a new fungus group")
                     link_to_model = self.rdf_kg.look_for_new_fungus_group()
                     if link_to_model is not None:

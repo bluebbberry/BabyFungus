@@ -55,7 +55,7 @@ class RDFKnowledgeGraph:
 
         for message in messages:
             if "kb-link" in message:
-                logging.info("Received join request. Preparing to join...")
+                logging.info("Found request with join link. Preparing to join calculation ...")
                 link_to_knowledge_base = "http://example.org/data/"
                 return link_to_knowledge_base
         logging.info("Announcing request to join the next epoch.")
