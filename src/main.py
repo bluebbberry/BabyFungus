@@ -34,12 +34,13 @@ class BabyFungus:
         while True:
             logging.info(f"[START] Starting epoche {i} (at {datetime.datetime.now()})")
             try:
-                logging.info("[CHECK] Searching for a new fungus group")
-                if switch_team and self.rdf_kg.look_for_new_fungus_group():
-                    logging.info("[TRAINING] New fungus group detected, initiating training")
-                    self.train_and_deploy_model()
-                else:
-                    logging.info("[WAIT] No new groups found. Responding to user feedback.")
+                if switch_team:
+                    logging.info("[CHECK] Searching for a new fungus group")
+                    if self.rdf_kg.look_for_new_fungus_group():
+                        logging.info("[TRAINING] New fungus group detected, initiating training")
+                        self.train_and_deploy_model()
+                    else:
+                        logging.info("[WAIT] No new groups found. Responding to user feedback.")
 
                 feedback = self.mastodon.answerUserFeedback()
                 logging.info(f"[FEEDBACK] Received feedback: {feedback}")

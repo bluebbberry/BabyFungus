@@ -52,7 +52,7 @@ class RDFKnowledgeGraph:
         if not messages:
             logging.warning("No messages found under the nutrial hashtag. Trying again later...")
             time.sleep(60)
-            return self.look_for_new_fungus_group()
+            return False
 
         for message in messages:
             if "join-request" in message:
