@@ -26,8 +26,10 @@ def main():
             logging.info(f"[RESULT] Training complete. Model: {model.tolist()} | Gradients: {gradients.tolist()}")
             rdf_kg.save_model(model)
             mastodon.post_status(f"Training complete. Updated model: {model.tolist()}")
+            logging.info("[FINISH] Training complete - start answering user feedback with new model")
         else:
-            logging.info("[WAIT] No new fungus group found, sleeping")
+            logging.info("[WAIT] No new fungus group found, answer user feedback")
+        mastodon.answerUserFeedback()
         time.sleep(60)
 
 if __name__ == "__main__":

@@ -64,3 +64,6 @@ class MastodonClient:
         else:
             print(f"Error: {response.status_code}")
             return None
+
+    def answerUserFeedback(self):
+        pass
