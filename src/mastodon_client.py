@@ -66,4 +66,5 @@ class MastodonClient:
             return None
 
     def answerUserFeedback(self):
-        pass
+        feedback = 10
+        return feedback
