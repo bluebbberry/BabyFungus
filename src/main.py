@@ -24,6 +24,8 @@ class BabyFungus:
             fuseki_server=os.getenv("FUSEKI_SERVER_UPDATE_URL"),
             fuseki_query=os.getenv("FUSEKI_SERVER_QUERY_URL")
         )
+        self.rdf_kg.insert_gradient(2)
+        self.rdf_kg.retrieve_all_gradients(None)
         self.fl = FederatedLearning()
         self.feedback_threshold = float(os.getenv("FEEDBACK_THRESHOLD", 0.5))
         logging.info(f"[CONFIG] Feedback threshold set to {self.feedback_threshold}")
@@ -39,12 +41,16 @@ class BabyFungus:
                     logging.info("[CHECK] Searching for a new fungus group")
                     link_to_model = self.rdf_kg.look_for_new_fungus_group()
                     if link_to_model is not None:
-                        logging.info("[TRAINING] New fungus group detected, initiating training")
-                        model = self.rdf_kg.fetch_model_from_knowledge_base(link_to_model)
-                        updates = self.rdf_kg.fetch_updates_from_knowledge_base(link_to_model)
-                        self.train_and_deploy_model(model, updates)
-                    else:
-                        logging.info("[WAIT] No new groups found. Responding to user feedback.")
+                        found_initial_team = True
+                else:
+                    logging.info("[WAIT] No new groups found.")
+                    link_to_model = None
+
+                if link_to_model is not None:
+                    logging.info("[TRAINING] New fungus group detected, initiating training")
+                    model = self.rdf_kg.fetch_model_from_knowledge_base(link_to_model)
+                    updates = self.rdf_kg.fetch_updates_from_knowledge_base(link_to_model)
+                    self.train_and_deploy_model(model, updates)
 
                 feedback = self.mastodon.answerUserFeedback()
                 logging.info(f"[FEEDBACK] Received feedback: {feedback}")
@@ -63,7 +69,7 @@ class BabyFungus:
             model, gradients = self.fl.train(model, updates)
             logging.info(f"[RESULT] Model trained successfully. Model: {model.tolist()}")
 
-            self.rdf_kg.save_model(model)
+            self.rdf_kg.save_model(gradients)
             logging.info("[STORE] Model saved to RDF Knowledge Graph")
 
             self.mastodon.post_status(f"Training complete. Updated model: {model.tolist()}")

@@ -8,13 +8,15 @@ import time
 logging.basicConfig(level=logging.INFO)
 
 class RDFKnowledgeGraph:
-    def __init__(self, fuseki_server, fuseki_query):
+    def __init__(self, fuseki_server, fuseki_query, base_url="http://localhost:3030", dataset="my-knowledge-base"):
         self.FUSEKI_SERVER = fuseki_server
         self.FUSEKI_QUERY = fuseki_query
         self.DATA_NS = Namespace("http://example.org/data/")
         self.graph = Graph()
         self.graph.bind("data", self.DATA_NS)
         self.mastodon_client = MastodonClient()
+        self.update_url = f"{base_url}/{dataset}/update"
+        self.sparql_url = f"{base_url}/{dataset}/query"
 
     def save_to_knowledge_graph(self, model):
         self.graph.set((self.DATA_NS["model"], self.DATA_NS["weights"], Literal(str(model.tolist()))))
@@ -62,41 +64,56 @@ class RDFKnowledgeGraph:
         self.mastodon_client.post_status(f"Request-to-join: Looking for a training group. {self.mastodon_client.hashtag}")
         return None
 
-    def save_model(self, model):
-        self.graph.set((self.DATA_NS["model"], self.DATA_NS["weights"], Literal(str(model.tolist()))))
-        response = requests.post(self.FUSEKI_SERVER, data=self.graph.serialize(format='nt'))
-        if response.ok:
-            logging.info("Model successfully saved to knowledge graph.")
-        else:
-            logging.error(f"Failed to save model: {response.status_code}")
+    def save_model(self, gradient):
+        self.insert_gradient(gradient)
 
     def fetch_model_from_knowledge_base(self, link_to_model):
-        query = """
-        PREFIX data: <http://example.org/data/>
-        SELECT ?weights WHERE { ?model data:weights ?weights }
-        """
-        response = requests.post(self.FUSEKI_QUERY, data={'query': query}, headers={'Accept': 'application/sparql-results+json'})
-        results = response.json().get("results", {}).get("bindings", [])
-        if results:
-            weights = eval(results[0]['weights']['value'])
-            return weights
-        else:
-            logging.warning("No model weights found.")
-            return []
+        return self.retrieve_all_gradients(link_to_model)
 
     def fetch_updates_from_knowledge_base(self, link_to_model):
-        query = """
-        PREFIX data: <http://example.org/data/>
-        SELECT ?gradients WHERE { ?model data:gradients ?gradients }
+        return self.retrieve_all_gradients(link_to_model)
+
+    def insert_data(self, sparql_insert_query):
+        headers = {"Content-Type": "application/sparql-update"}
+        response = requests.post(self.update_url, data=sparql_insert_query, headers=headers)
+        return response.status_code, response.text
+
+    def insert_gradient(self, gradient):
+        logging.info("Insert gradient: {gradient}".format(gradient=gradient))
+        sparql_insert_query = f'''
+        PREFIX ex: <http://example.org/>
+        INSERT DATA {{
+            ex:{0} ex:gradients "{gradient}" ;
+                        ex:hasAccuracy "{10}" .
+        }}
+        '''
+        return self.insert_data(sparql_insert_query)
+
+    def retrieve_all_gradients(self, link_to_model):
         """
-        response = requests.post(self.FUSEKI_QUERY, data={'query': query}, headers={'Accept': 'application/sparql-results+json'})
-        results = response.json().get("results", {}).get("bindings", [])
-        updates = []
-        if results:
-            for result in results:
-                gradients = eval(result['gradients']['value'])
-                updates.append(gradients)
-            return updates
+        Retrieves all gradient values from the Fuseki server.
+
+        Returns:
+            list: A list of gradient values, or an empty list if no gradients are found.
+        """
+        sparql_select_query = '''
+        PREFIX ex: <http://example.org/>
+        SELECT ?gradient
+        WHERE {
+            ?agent ex:gradients ?gradient .
+        }
+        '''
+
+        # Send the SPARQL SELECT query to retrieve all gradient values
+        params = {'query': sparql_select_query, 'format': 'application/json'}
+        response = requests.get(self.sparql_url, params=params)
+
+        if response.status_code == 200:
+            result = response.json()
+            gradients = [binding['gradient']['value'] for binding in result['results']['bindings']]
+            for gradient in gradients:
+                logging.info("found gradients: " + gradient)
+            return gradients
         else:
-            logging.warning("No updates found.")
+            print(f"Error retrieving data: {response.status_code} - {response.text}")
             return []
