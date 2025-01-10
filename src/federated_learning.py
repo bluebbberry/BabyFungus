@@ -13,7 +13,7 @@ class FederatedLearning:
         self.model = np.random.rand(model_size)
         self.local_gradients = np.zeros_like(self.model)
         self.learning_rate = learning_rate
-        self.rdf_kg = RDFKnowledgeGraph(fuseki_server="http://localhost:3030/ds/update", fuseki_query="http://localhost:3030/ds/query")
+        self.rdf_kg = RDFKnowledgeGraph(fuseki_server=os.getenv("FUSEKI_SERVER_UPDATE_URL"), fuseki_query=os.getenv("FUSEKI_SERVER_QUERY_URL"))
         self.mastodon_api = MastodonClient()
 
     def train(self):
