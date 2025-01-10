@@ -64,3 +64,9 @@ class RDFKnowledgeGraph:
 
     def save_model(self, model):
         pass
+
+    def fetch_model(self, link_to_model):
+        return []
+
+    def fetch_updates(self, link_to_model):
+        return []

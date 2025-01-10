@@ -36,9 +36,12 @@ class BabyFungus:
             try:
                 if switch_team:
                     logging.info("[CHECK] Searching for a new fungus group")
-                    if self.rdf_kg.look_for_new_fungus_group():
+                    link_to_model = self.rdf_kg.look_for_new_fungus_group()
+                    if link_to_model is not None:
                         logging.info("[TRAINING] New fungus group detected, initiating training")
-                        self.train_and_deploy_model()
+                        model = self.rdf_kg.fetch_model(link_to_model)
+                        updates = self.rdf_kg.fetch_updates(link_to_model)
+                        self.train_and_deploy_model(model, updates)
                     else:
                         logging.info("[WAIT] No new groups found. Responding to user feedback.")
 
@@ -53,7 +56,7 @@ class BabyFungus:
             except Exception as e:
                 logging.error(f"[ERROR] An error occurred: {e}", exc_info=True)
 
-    def train_and_deploy_model(self):
+    def train_and_deploy_model(self, model, updates):
         try:
             logging.info("[TRAINING] Starting model training")
             model, gradients = self.fl.train()
