@@ -59,7 +59,7 @@ class BabyFungus:
     def train_and_deploy_model(self, model, updates):
         try:
             logging.info("[TRAINING] Starting model training")
-            model, gradients = self.fl.train()
+            model, gradients = self.fl.train(model, updates)
             logging.info(f"[RESULT] Model trained successfully. Model: {model.tolist()}")
 
             self.rdf_kg.save_model(model)

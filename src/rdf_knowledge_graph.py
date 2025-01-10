@@ -63,10 +63,36 @@ class RDFKnowledgeGraph:
         return None
 
     def save_model(self, model):
-        pass
+        self.graph.set((self.DATA_NS["model"], self.DATA_NS["weights"], Literal(str(model.tolist()))))
+        response = requests.post(self.FUSEKI_SERVER, data=self.graph.serialize(format='nt'))
+        if response.ok:
+            logging.info("Model successfully saved to knowledge graph.")
+        else:
+            logging.error(f"Failed to save model: {response.status_code}")
 
     def fetch_model_from_knowledge_base(self, link_to_model):
-        return []
+        query = """
+        PREFIX data: <http://example.org/data/>
+        SELECT ?weights WHERE { ?model data:weights ?weights }
+        """
+        response = requests.post(self.FUSEKI_QUERY, data={'query': query}, headers={'Accept': 'application/sparql-results+json'})
+        results = response.json().get("results", {}).get("bindings", [])
+        if results:
+            weights = eval(results[0]['weights']['value'])
+            return weights
+        else:
+            logging.warning("No model weights found.")
+            return []
 
     def fetch_updates_from_knowledge_base(self, link_to_model):
-        return []
+        query = """
+        PREFIX data: <http://example.org/data/>
+        SELECT ?gradients WHERE { ?model data:gradients ?gradients }
+        """
+        response = requests.post(self.FUSEKI_QUERY, data={'query': query}, headers={'Accept': 'application/sparql-results+json'})
+        results = response.json().get("results", {}).get("bindings", [])
+        updates = []
+        for result in results:
+            gradients = eval(result['gradients']['value'])
+            updates.append(gradients)
+        return updates
