@@ -8,13 +8,15 @@ import time
 logging.basicConfig(level=logging.INFO)
 
 class RDFKnowledgeGraph:
-    def __init__(self, fuseki_server, fuseki_query):
+    def __init__(self, fuseki_server, fuseki_query, base_url="http://localhost:3030", dataset="my-knowledge-base"):
         self.FUSEKI_SERVER = fuseki_server
         self.FUSEKI_QUERY = fuseki_query
         self.DATA_NS = Namespace("http://example.org/data/")
         self.graph = Graph()
         self.graph.bind("data", self.DATA_NS)
         self.mastodon_client = MastodonClient()
+        self.update_url = f"{base_url}/{dataset}/update"
+        self.sparql_url = f"{base_url}/{dataset}/query"
 
     def save_to_knowledge_graph(self, model):
         self.graph.set((self.DATA_NS["model"], self.DATA_NS["weights"], Literal(str(model.tolist()))))
@@ -99,4 +101,48 @@ class RDFKnowledgeGraph:
             return updates
         else:
             logging.warning("No updates found.")
+            return []
+
+    def insert_data(self, sparql_insert_query):
+        headers = {"Content-Type": "application/sparql-update"}
+        response = requests.post(self.update_url, data=sparql_insert_query, headers=headers)
+        return response.status_code, response.text
+
+    def insert_loss_accuracy(self, agent_id, gradient, accuracy):
+        sparql_insert_query = f'''
+        PREFIX ex: <http://example.org/>
+        INSERT DATA {{
+            ex:{agent_id} ex:gradients "{gradient}" ;
+                        ex:hasAccuracy "{accuracy}" .
+        }}
+        '''
+        return self.insert_data(sparql_insert_query)
+
+    def retrieve_all_gradients(self):
+        """
+        Retrieves all gradient values from the Fuseki server.
+
+        Returns:
+            list: A list of gradient values, or an empty list if no gradients are found.
+        """
+        sparql_select_query = '''
+        PREFIX ex: <http://example.org/>
+        SELECT ?gradient
+        WHERE {
+            ?agent ex:gradients ?gradient .
+        }
+        '''
+
+        # Send the SPARQL SELECT query to retrieve all gradient values
+        params = {'query': sparql_select_query, 'format': 'application/json'}
+        response = requests.get(self.sparql_url, params=params)
+
+        if response.status_code == 200:
+            result = response.json()
+            gradients = [binding['gradient']['value'] for binding in result['results']['bindings']]
+            for gradient in gradients:
+                logging.info("found gradients: " + gradient)
+            return gradients
+        else:
+            print(f"Error retrieving data: {response.status_code} - {response.text}")
             return []

@@ -24,6 +24,8 @@ class BabyFungus:
             fuseki_server=os.getenv("FUSEKI_SERVER_UPDATE_URL"),
             fuseki_query=os.getenv("FUSEKI_SERVER_QUERY_URL")
         )
+        self.rdf_kg.insert_loss_accuracy(5, 2, 5)
+        self.rdf_kg.retrieve_all_gradients()
         self.fl = FederatedLearning()
         self.feedback_threshold = float(os.getenv("FEEDBACK_THRESHOLD", 0.5))
         logging.info(f"[CONFIG] Feedback threshold set to {self.feedback_threshold}")
