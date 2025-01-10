@@ -92,7 +92,11 @@ class RDFKnowledgeGraph:
         response = requests.post(self.FUSEKI_QUERY, data={'query': query}, headers={'Accept': 'application/sparql-results+json'})
         results = response.json().get("results", {}).get("bindings", [])
         updates = []
-        for result in results:
-            gradients = eval(result['gradients']['value'])
-            updates.append(gradients)
-        return updates
+        if results:
+            for result in results:
+                gradients = eval(result['gradients']['value'])
+                updates.append(gradients)
+            return updates
+        else:
+            logging.warning("No updates found.")
+            return []
