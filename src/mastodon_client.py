@@ -11,7 +11,6 @@ class MastodonClient:
         self.api_token = os.getenv("MASTODON_API_KEY")
         self.instance_url = os.getenv("MASTODON_INSTANCE_URL")
         self.hashtag = os.getenv("NUTRIAL_TAG")
-        logging.info("Mastodon API Initialized.")
 
     def post_status(self, status_text):
         url = f"{self.instance_url}/api/v1/statuses"
@@ -50,20 +49,17 @@ class MastodonClient:
 
         if response.status_code == 200:
             data = response.json()
-            print(f"Found {len(data)} latest statuses")
+            logging.info(f"Found {len(data)} latest statuses")
             statuses = data
+            messages = []
             for status in statuses:
                 content = status['content']
-                if "predict" in content.lower():
-                    try:
-                        input_data = np.array(eval(content.split("predict:")[1].strip()))
-                        prediction = input_data @ model
-                        self.post_status(f"Prediction: {prediction.tolist()}")
-                    except Exception as e:
-                        self.post_status(f"Error processing request: {str(e)}")
+                messages.append(content)
+            return messages
         else:
-            print(f"Error: {response.status_code}")
+            logging.error(f"Error: {response.status_code}")
             return None
 
     def answerUserFeedback(self):
-        pass
+        feedback = 10
+        return feedback
