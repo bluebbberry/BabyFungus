@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from federated_learning import FederatedLearning
 from rdf_knowledge_graph import RDFKnowledgeGraph
 from mastodon_client import MastodonClient
+import datetime
 
 # Load environment variables
 load_dotenv()
@@ -31,7 +32,7 @@ class BabyFungus:
         switch_team = True
         i = 0
         while True:
-            logging.info(f"[START] New epoch: {i}")
+            logging.info(f"[START] Starting epoche {i} (at {datetime.datetime.now()})")
             try:
                 logging.info("[CHECK] Searching for a new fungus group")
                 if switch_team and self.rdf_kg.look_for_new_fungus_group():
@@ -45,7 +46,8 @@ class BabyFungus:
 
                 switch_team = self.decide_whether_to_switch_team(feedback)
 
-                time.sleep(60)
+                logging.info("[SLEEP] Sleeping for 5 seconds")
+                time.sleep(5)
                 i = i + 1
             except Exception as e:
                 logging.error(f"[ERROR] An error occurred: {e}", exc_info=True)
