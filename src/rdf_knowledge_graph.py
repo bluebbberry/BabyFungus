@@ -2,6 +2,8 @@
 import requests
 from rdflib import Graph, Namespace, Literal
 import logging
+from mastodon_client import MastodonClient
+import time
 
 logging.basicConfig(level=logging.INFO)
 
@@ -13,6 +15,7 @@ class RDFKnowledgeGraph:
         self.graph = Graph()
         self.graph.bind("data", self.DATA_NS)
         logging.info("RDF Knowledge Graph Initialized.")
+        self.mastodon_client = MastodonClient()
 
     def save_to_knowledge_graph(self, model):
         self.graph.set((self.DATA_NS["model"], self.DATA_NS["weights"], Literal(str(model.tolist()))))
@@ -45,7 +48,20 @@ class RDFKnowledgeGraph:
         return aggregated_gradients
 
     def look_for_new_fungus_group(self):
-        pass
+        logging.info("Stage 1: Looking for a new fungus group to join...")
+        messages = self.mastodon_client.fetch_and_respond_to_mastodon_requests(None)
+        if not messages:
+            logging.warning("No messages found under the nutrial hashtag. Trying again later...")
+            time.sleep(60)
+            return self.look_for_new_fungus_group()
+
+        for message in messages:
+            if "join-request" in message:
+                logging.info("Received join request. Preparing to join...")
+                return True
+        logging.info("Announcing request to join the next epoch.")
+        self.mastodon_client.post_status(f"Request-to-join: Looking for a training group. {self.mastodon_client.hashtag}")
+        return False
 
     def save_model(self, model):
         pass
