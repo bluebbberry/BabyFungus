@@ -49,19 +49,15 @@ class MastodonClient:
 
         if response.status_code == 200:
             data = response.json()
-            print(f"Found {len(data)} latest statuses")
+            logging.info(f"Found {len(data)} latest statuses")
             statuses = data
+            messages = []
             for status in statuses:
                 content = status['content']
-                if "predict" in content.lower():
-                    try:
-                        input_data = np.array(eval(content.split("predict:")[1].strip()))
-                        prediction = input_data @ model
-                        self.post_status(f"Prediction: {prediction.tolist()}")
-                    except Exception as e:
-                        self.post_status(f"Error processing request: {str(e)}")
+                messages.append(content)
+            return messages
         else:
-            print(f"Error: {response.status_code}")
+            logging.error(f"Error: {response.status_code}")
             return None
 
     def answerUserFeedback(self):
