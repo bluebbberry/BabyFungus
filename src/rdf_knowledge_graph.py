@@ -14,7 +14,6 @@ class RDFKnowledgeGraph:
         self.DATA_NS = Namespace("http://example.org/data/")
         self.graph = Graph()
         self.graph.bind("data", self.DATA_NS)
-        logging.info("RDF Knowledge Graph Initialized.")
         self.mastodon_client = MastodonClient()
 
     def save_to_knowledge_graph(self, model):

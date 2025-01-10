@@ -15,7 +15,6 @@ class FederatedLearning:
         self.learning_rate = learning_rate
         self.rdf_kg = RDFKnowledgeGraph(fuseki_server=os.getenv("FUSEKI_SERVER_UPDATE_URL"), fuseki_query=os.getenv("FUSEKI_SERVER_QUERY_URL"))
         self.mastodon_api = MastodonClient()
-        logging.info(f"Initialized model: {self.model}")
 
     def train(self):
         while True:

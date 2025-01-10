@@ -11,7 +11,6 @@ class MastodonClient:
         self.api_token = os.getenv("MASTODON_API_KEY")
         self.instance_url = os.getenv("MASTODON_INSTANCE_URL")
         self.hashtag = os.getenv("NUTRIAL_TAG")
-        logging.info("Mastodon API Initialized.")
 
     def post_status(self, status_text):
         url = f"{self.instance_url}/api/v1/statuses"
