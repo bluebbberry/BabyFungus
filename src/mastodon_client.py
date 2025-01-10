@@ -2,12 +2,16 @@
 import requests
 import numpy as np
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 class MastodonClient:
     def __init__(self):
         self.api_token = os.getenv("MASTODON_API_KEY")
         self.instance_url = os.getenv("MASTODON_INSTANCE_URL")
         self.hashtag = os.getenv("NUTRIAL_TAG")
+        logging.info("Mastodon API Initialized.")
 
     def post_status(self, status_text):
         url = f"{self.instance_url}/api/v1/statuses"
@@ -20,6 +24,7 @@ class MastodonClient:
         try:
             response = requests.post(url, headers=headers, json=payload)
             response.raise_for_status()
+            logging.info(f"Posted to Mastodon: {status_text}")
             return response.json()
         except requests.exceptions.RequestException as e:
             print(f"Error posting status: {e}")

@@ -1,5 +1,6 @@
 # federated_learning.py
 import numpy as np
+import logging
 import time
 from rdf_knowledge_graph import RDFKnowledgeGraph
 from mastodon_client import MastodonClient
@@ -8,6 +9,8 @@ from dotenv import load_dotenv, dotenv_values
 # loading variables from .env file
 load_dotenv()
 
+logging.basicConfig(level=logging.INFO)
+
 class FederatedLearning:
     def __init__(self, model_size=3, learning_rate=0.01):
         self.model = np.random.rand(model_size)
@@ -15,6 +18,7 @@ class FederatedLearning:
         self.learning_rate = learning_rate
         self.rdf_kg = RDFKnowledgeGraph(fuseki_server=os.getenv("FUSEKI_SERVER_UPDATE_URL"), fuseki_query=os.getenv("FUSEKI_SERVER_QUERY_URL"))
         self.mastodon_api = MastodonClient()
+        logging.info(f"Initialized model: {self.model}")
 
     def train(self):
         while True:
@@ -29,4 +33,6 @@ class FederatedLearning:
             self.model -= self.learning_rate * self.local_gradients
             self.rdf_kg.save_to_knowledge_graph(self.model)
             self.mastodon_api.post_status(f"Model updated: {self.model.tolist()}")
+            logging.info(f"Model updated: {self.model}")
+            logging.info(f"Gradients calculated: {gradients}")
             time.sleep(60)
