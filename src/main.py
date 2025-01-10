@@ -9,7 +9,7 @@ def start_training():
 
 def start_mastodon_interaction():
     mastodon_api = MastodonClient()
-    mastodon_api.post_status("test")
+    mastodon_api.post_status("Ready for requests.")
     mastodon_api.fetch_and_respond_to_mastodon_requests(model=None)  # Provide the model here if needed
 
 if __name__ == "__main__":
