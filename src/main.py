@@ -12,26 +12,32 @@ load_dotenv()
 # Configuring logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-def main():
-    logging.info("[START] Baby Fungus instance starting up")
-    mastodon = MastodonClient()
-    rdf_kg = RDFKnowledgeGraph(fuseki_server=os.getenv("FUSEKI_SERVER_UPDATE_URL"), fuseki_query=os.getenv("FUSEKI_SERVER_QUERY_URL"))
-    fl = FederatedLearning()
+class BabyFungus:
+    def __init__(self):
+        logging.info("[START] Baby Fungus instance starting up")
+        self.mastodon = MastodonClient()
+        self.rdf_kg = RDFKnowledgeGraph(fuseki_server=os.getenv("FUSEKI_SERVER_UPDATE_URL"), fuseki_query=os.getenv("FUSEKI_SERVER_QUERY_URL"))
+        self.fl = FederatedLearning()
 
-    while True:
-        logging.info("[CHECK] Looking for new fungus group")
-        if rdf_kg.look_for_new_fungus_group():
-            logging.info("[TRAINING] New fungus group found, starting training")
-            model, gradients = fl.train()
-            logging.info(f"[RESULT] Training complete. Model: {model.tolist()} | Gradients: {gradients.tolist()}")
-            rdf_kg.save_model(model)
-            mastodon.post_status(f"Training complete. Updated model: {model.tolist()}")
-            logging.info("[FINISH] Training complete - start answering user feedback with new model")
-        else:
-            logging.info("[WAIT] No new fungus group found, answer user feedback")
-        mastodon.answerUserFeedback()
-        time.sleep(60)
+    def start(self):
+        while True:
+            logging.info("[CHECK] Looking for new fungus group")
+            if self.rdf_kg.look_for_new_fungus_group():
+                logging.info("[TRAINING] New fungus group found, starting training")
+                self.train_and_deploy_model()
+            else:
+                logging.info("[WAIT] No new fungus group found, answer user feedback")
+            self.mastodon.answerUserFeedback()
+            time.sleep(60)
+
+    def train_and_deploy_model(self):
+        model, gradients = self.fl.train()
+        logging.info(f"[RESULT] Training complete. Model: {model.tolist()} | Gradients: {gradients.tolist()}")
+        self.rdf_kg.save_model(model)
+        self.mastodon.post_status(f"Training complete. Updated model: {model.tolist()}")
+        logging.info("[FINISH] Training complete - start answering user feedback with new model")
 
 if __name__ == "__main__":
     logging.info("[INIT] Baby Fungus instance initializing")
-    main()
+    babyFungus = BabyFungus()
+    babyFungus.start()
