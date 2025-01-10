@@ -39,8 +39,8 @@ class BabyFungus:
                     link_to_model = self.rdf_kg.look_for_new_fungus_group()
                     if link_to_model is not None:
                         logging.info("[TRAINING] New fungus group detected, initiating training")
-                        model = self.rdf_kg.fetch_model(link_to_model)
-                        updates = self.rdf_kg.fetch_updates(link_to_model)
+                        model = self.rdf_kg.fetch_model_from_knowledge_base(link_to_model)
+                        updates = self.rdf_kg.fetch_updates_from_knowledge_base(link_to_model)
                         self.train_and_deploy_model(model, updates)
                     else:
                         logging.info("[WAIT] No new groups found. Responding to user feedback.")

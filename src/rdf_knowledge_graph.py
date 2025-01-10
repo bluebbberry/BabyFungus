@@ -51,22 +51,22 @@ class RDFKnowledgeGraph:
         messages = self.mastodon_client.fetch_and_respond_to_mastodon_requests(None)
         if not messages:
             logging.warning("No messages found under the nutrial hashtag. Trying again later...")
-            time.sleep(60)
-            return False
+            return None
 
         for message in messages:
-            if "join-request" in message:
+            if "kb-link" in message:
                 logging.info("Received join request. Preparing to join...")
-                return True
+                link_to_knowledge_base = "http://example.org/data/"
+                return link_to_knowledge_base
         logging.info("Announcing request to join the next epoch.")
         self.mastodon_client.post_status(f"Request-to-join: Looking for a training group. {self.mastodon_client.hashtag}")
-        return False
+        return None
 
     def save_model(self, model):
         pass
 
-    def fetch_model(self, link_to_model):
+    def fetch_model_from_knowledge_base(self, link_to_model):
         return []
 
-    def fetch_updates(self, link_to_model):
+    def fetch_updates_from_knowledge_base(self, link_to_model):
         return []
