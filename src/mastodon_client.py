@@ -83,7 +83,7 @@ class MastodonClient:
         else:
             print(f"Failed to send reply: {response.status_code}")
 
-    def answerUserFeedback(self):
+    def answer_user_feedback(self):
         statuses = self.fetch_latest_statuses(None)
         feedback = 1
         for status in statuses:

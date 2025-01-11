@@ -51,7 +51,7 @@ class BabyFungus:
                     updates = self.rdf_kg.fetch_updates_from_knowledge_base(link_to_model)
                     self.train_and_deploy_model(model, updates)
 
-                feedback = self.mastodon.answerUserFeedback()
+                feedback = self.mastodon.answer_user_feedback()
                 logging.info(f"[FEEDBACK] Received feedback: {feedback}")
 
                 switch_team = self.decide_whether_to_switch_team(feedback)
