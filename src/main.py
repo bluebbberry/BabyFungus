@@ -90,6 +90,7 @@ class BabyFungus:
     def evolve_behavior(self, feedback):
         mutation_chance = 0.1  # 10% chance to mutate
         if random.random() < mutation_chance:
+            logging.info("Randomly mutated")
             old_threshold = self.feedback_threshold
             self.feedback_threshold *= random.uniform(0.9, 1.1)  # Randomly adjust threshold
             logging.info(f"[EVOLVE] Feedback threshold mutated from {old_threshold} to {self.feedback_threshold}")
