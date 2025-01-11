@@ -4,6 +4,7 @@ import logging
 import time
 from rdf_knowledge_graph import RDFKnowledgeGraph
 import os
+import random
 
 logging.basicConfig(level=logging.INFO)
 
@@ -44,10 +45,19 @@ class FederatedLearning:
             self.model -= self.learning_rate * self.local_gradients
             logging.info(f"Updated model weights: {self.model}")
 
+            if random.random() < 0.1:
+                self.mutate_model()
+
             logging.info("Saving the updated model to the knowledge graph.")
             self.rdf_kg.save_to_knowledge_graph(self.model)
 
             time.sleep(60)
+
+    def mutate_model(self):
+        mutation_strength = 0.1
+        mutation_vector = np.random.normal(0, mutation_strength, self.model.shape)
+        self.model += mutation_vector
+        logging.info(f"Model mutated with vector: {mutation_vector}")
 
     def generate_reply(self, request):
         return "My test model is " + str(self.model)
