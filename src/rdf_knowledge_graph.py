@@ -118,3 +118,26 @@ class RDFKnowledgeGraph:
         else:
             print(f"Error retrieving data: {response.status_code} - {response.text}")
             return []
+
+    def aggregate_updates_from_other_nodes(self, link_to_model):
+        updates = self.fetch_updates_from_knowledge_base(link_to_model)
+        aggregated_updates = []
+
+        # Process and aggregate updates
+        for update in updates:
+            try:
+                # Convert string representation of list back to list
+                gradients = eval(update)
+                aggregated_updates.append(gradients)
+            except Exception as e:
+                logging.error(f"Error parsing gradient update: {e}")
+
+        # Calculate the average of all updates if available
+        if aggregated_updates:
+            import numpy as np
+            averaged_gradients = np.mean(aggregated_updates, axis=0).tolist()
+            logging.info(f"Averaged gradients computed: {averaged_gradients}")
+            return averaged_gradients
+        else:
+            logging.warning("No updates available for aggregation.")
+            return []

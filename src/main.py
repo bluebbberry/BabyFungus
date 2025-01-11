@@ -51,6 +51,8 @@ class BabyFungus:
                     model = self.rdf_kg.fetch_model_from_knowledge_base(link_to_model)
                     updates = self.rdf_kg.fetch_updates_from_knowledge_base(link_to_model)
                     self.train_and_deploy_model(model, updates)
+                    # aggregate knowledge from other nodes
+                    self.rdf_kg.aggregate_updates_from_other_nodes(link_to_model)
 
                 feedback = self.mastodon.answer_user_feedback()
                 logging.info(f"[FEEDBACK] Received feedback: {feedback}")
