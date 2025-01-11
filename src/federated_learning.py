@@ -4,15 +4,16 @@ import logging
 import time
 from rdf_knowledge_graph import RDFKnowledgeGraph
 import os
+import random
 
 logging.basicConfig(level=logging.INFO)
 
 class FederatedLearning:
-    def __init__(self, mastodonClient, model_size=3, learning_rate=0.01):
+    def __init__(self, mastodon_client, model_size=3, learning_rate=0.01):
         self.model = np.random.rand(model_size)
         self.local_gradients = np.zeros_like(self.model)
         self.learning_rate = learning_rate
-        self.rdf_kg = RDFKnowledgeGraph(mastodonClient=mastodonClient, fuseki_server=os.getenv("FUSEKI_SERVER_UPDATE_URL"), fuseki_query=os.getenv("FUSEKI_SERVER_QUERY_URL"))
+        self.rdf_kg = RDFKnowledgeGraph(mastodon_client=mastodon_client, fuseki_server=os.getenv("FUSEKI_SERVER_UPDATE_URL"), fuseki_query=os.getenv("FUSEKI_SERVER_QUERY_URL"))
 
     def train(self, model, updates):
         logging.info("Initializing training with provided model and updates.")
@@ -44,10 +45,19 @@ class FederatedLearning:
             self.model -= self.learning_rate * self.local_gradients
             logging.info(f"Updated model weights: {self.model}")
 
+            if random.random() < 0.1:
+                self.mutate_model()
+
             logging.info("Saving the updated model to the knowledge graph.")
             self.rdf_kg.save_to_knowledge_graph(self.model)
 
             time.sleep(60)
+
+    def mutate_model(self):
+        mutation_strength = 0.1
+        mutation_vector = np.random.normal(0, mutation_strength, self.model.shape)
+        self.model += mutation_vector
+        logging.info(f"Model mutated with vector: {mutation_vector}")
 
     def generate_reply(self, request):
         return "My test model is " + str(self.model)

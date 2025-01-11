@@ -21,9 +21,9 @@ class BabyFungus:
     def __init__(self):
         logging.info("[INIT] Initializing Baby Fungus instance")
         self.mastodon = MastodonClient()
-        self.rdf_kg = RDFKnowledgeGraph(mastodonClient=self.mastodon,
-            fuseki_server=os.getenv("FUSEKI_SERVER_UPDATE_URL"),
-            fuseki_query=os.getenv("FUSEKI_SERVER_QUERY_URL"))
+        self.rdf_kg = RDFKnowledgeGraph(mastodon_client=self.mastodon,
+                                        fuseki_server=os.getenv("FUSEKI_SERVER_UPDATE_URL"),
+                                        fuseki_query=os.getenv("FUSEKI_SERVER_QUERY_URL"))
         self.rdf_kg.insert_gradient(2)
         self.rdf_kg.retrieve_all_gradients(None)
         self.fl = FederatedLearning(self.mastodon)
@@ -50,7 +50,9 @@ class BabyFungus:
                     logging.info("[TRAINING] New fungus group detected, initiating training")
                     model = self.rdf_kg.fetch_model_from_knowledge_base(link_to_model)
                     updates = self.rdf_kg.fetch_updates_from_knowledge_base(link_to_model)
-                    self.train_and_deploy_model(model, updates)
+                    gradients = self.train_and_deploy_model(model, updates)
+                    # aggregate knowledge from other nodes
+                    self.rdf_kg.aggregate_updates_from_other_nodes(link_to_model, gradients)
 
                 feedback = self.mastodon.answer_user_feedback()
                 logging.info(f"[FEEDBACK] Received feedback: {feedback}")
@@ -79,6 +81,7 @@ class BabyFungus:
 
             self.mastodon.post_status(f"Training complete. Updated model: {model.tolist()}")
             logging.info("[NOTIFY] Status posted to Mastodon")
+            return gradients
         except Exception as e:
             logging.error(f"[ERROR] Failed during training and deployment: {e}", exc_info=True)
 
@@ -88,7 +91,7 @@ class BabyFungus:
         return switch_decision
 
     def evolve_behavior(self, feedback):
-        mutation_chance = 0.1  # 10% chance to mutate
+        mutation_chance = 0.1
         if random.random() < mutation_chance:
             logging.info("Randomly mutated")
             old_threshold = self.feedback_threshold

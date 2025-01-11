@@ -6,13 +6,13 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 class RDFKnowledgeGraph:
-    def __init__(self, fuseki_server, fuseki_query, mastodonClient, base_url="http://localhost:3030", dataset="my-knowledge-base"):
+    def __init__(self, fuseki_server, fuseki_query, mastodon_client, base_url="http://localhost:3030", dataset="my-knowledge-base"):
         self.FUSEKI_SERVER = fuseki_server
         self.FUSEKI_QUERY = fuseki_query
         self.DATA_NS = Namespace("http://example.org/data/")
         self.graph = Graph()
         self.graph.bind("data", self.DATA_NS)
-        self.mastodon_client = mastodonClient
+        self.mastodon_client = mastodon_client
         self.update_url = f"{base_url}/{dataset}/update"
         self.sparql_url = f"{base_url}/{dataset}/query"
 
@@ -117,4 +117,28 @@ class RDFKnowledgeGraph:
             return gradients
         else:
             print(f"Error retrieving data: {response.status_code} - {response.text}")
+            return []
+
+    def aggregate_updates_from_other_nodes(self, link_to_model, self_gradients):
+        updates = self.fetch_updates_from_knowledge_base(link_to_model)
+        aggregated_updates = [self_gradients]  # Include self gradients with higher weight
+
+        # Process and aggregate updates
+        for update in updates:
+            try:
+                # Convert string representation of list back to list
+                gradients = eval(update)
+                aggregated_updates.append(gradients)
+            except Exception as e:
+                logging.error(f"Error parsing gradient update: {e}")
+
+        # Calculate the weighted average giving more weight to self gradients
+        if aggregated_updates:
+            import numpy as np
+            weights = [0.5] + [0.5 / len(updates)] * len(updates)
+            averaged_gradients = np.average(aggregated_updates, axis=0, weights=weights).tolist()
+            logging.info(f"Weighted averaged gradients computed: {averaged_gradients}")
+            return averaged_gradients
+        else:
+            logging.warning("No updates available for aggregation.")
             return []
