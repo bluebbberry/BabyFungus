@@ -13,6 +13,7 @@ class MastodonClient:
         self.instance_url = os.getenv("MASTODON_INSTANCE_URL")
         self.hashtag = os.getenv("NUTRIAL_TAG")
         self.federated_learning = FederatedLearning(self)
+        self.ids_of_replied_statuses = []
 
     def post_status(self, status_text):
         url = f"{self.instance_url}/api/v1/statuses"
@@ -79,6 +80,7 @@ class MastodonClient:
         response = requests.post(f'{self.instance_url}/api/v1/statuses', json=payload, headers=headers)
 
         if response.status_code == 200:
+            self.ids_of_replied_statuses.append(status_id)
             print("Reply sent successfully!")
         else:
             print(f"Failed to send reply: {response.status_code}")
@@ -86,7 +88,8 @@ class MastodonClient:
     def answer_user_feedback(self):
         statuses = self.fetch_latest_statuses(None)
         feedback = 1
-        for status in statuses:
+        fresh_statuses = filter(lambda s: s["id"] not in self.ids_of_replied_statuses, statuses)
+        for status in fresh_statuses:
             if "babyfungus" in status['content']:
                 reply = self.federated_learning.generate_reply(status['content'])
                 self.reply_to_status(status['id'], status['account']['username'], reply)
