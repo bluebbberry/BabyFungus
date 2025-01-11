@@ -50,9 +50,9 @@ class BabyFungus:
                     logging.info("[TRAINING] New fungus group detected, initiating training")
                     model = self.rdf_kg.fetch_model_from_knowledge_base(link_to_model)
                     updates = self.rdf_kg.fetch_updates_from_knowledge_base(link_to_model)
-                    self.train_and_deploy_model(model, updates)
+                    gradients = self.train_and_deploy_model(model, updates)
                     # aggregate knowledge from other nodes
-                    self.rdf_kg.aggregate_updates_from_other_nodes(link_to_model)
+                    self.rdf_kg.aggregate_updates_from_other_nodes(link_to_model, gradients)
 
                 feedback = self.mastodon.answer_user_feedback()
                 logging.info(f"[FEEDBACK] Received feedback: {feedback}")
@@ -81,6 +81,7 @@ class BabyFungus:
 
             self.mastodon.post_status(f"Training complete. Updated model: {model.tolist()}")
             logging.info("[NOTIFY] Status posted to Mastodon")
+            return gradients
         except Exception as e:
             logging.error(f"[ERROR] Failed during training and deployment: {e}", exc_info=True)
 
