@@ -50,7 +50,10 @@ class RDFKnowledgeGraph:
 
     def look_for_new_fungus_group(self):
         logging.info("Stage 1: Looking for a new fungus group to join...")
-        messages = self.mastodon_client.fetch_and_respond_to_mastodon_requests(None)
+        messages = []
+        statuses = self.mastodon_client.fetch_latest_statuses(None)
+        for status in statuses:
+            messages.append(status["content"])
         if not messages:
             logging.warning("No messages found under the nutrial hashtag. Trying again later...")
             return None

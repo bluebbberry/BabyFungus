@@ -62,6 +62,7 @@ class BabyFungus:
                 i = i + 1
             except Exception as e:
                 logging.error(f"[ERROR] An error occurred: {e}", exc_info=True)
+                time.sleep(60)
 
     def train_and_deploy_model(self, model, updates):
         try:

@@ -29,7 +29,7 @@ class MastodonClient:
             print(f"Error posting status: {e}")
             return None
 
-    def fetch_and_respond_to_mastodon_requests(self, model):
+    def fetch_latest_statuses(self, model):
         base_url = f"{self.instance_url}/api/v1"
 
         headers = {
@@ -51,15 +51,39 @@ class MastodonClient:
             data = response.json()
             logging.info(f"Found {len(data)} latest statuses")
             statuses = data
-            messages = []
-            for status in statuses:
-                content = status['content']
-                messages.append(content)
-            return messages
+            return statuses
         else:
             logging.error(f"Error: {response.status_code}")
             return None
 
+    def reply_to_status(self, status_id, username, message):
+        # Construct the reply message mentioning the user
+        reply_message = f"@{username} {message}"
+
+        # Prepare the request headers
+        headers = {
+            'Authorization': f'Bearer {self.api_token}',
+            'Content-Type': 'application/json'
+        }
+
+        # Prepare the request payload
+        payload = {
+            'status': reply_message,
+            'in_reply_to_id': status_id
+        }
+        logging.info("Reply to status with id " + str(status_id) + ": " + reply_message)
+
+        # Send the POST request
+        response = requests.post(f'{self.instance_url}/api/v1/statuses', json=payload, headers=headers)
+
+        if response.status_code == 200:
+            print("Reply sent successfully!")
+        else:
+            print(f"Failed to send reply: {response.status_code}")
+
     def answerUserFeedback(self):
+        statuses = self.fetch_latest_statuses(None)
+        for status in statuses:
+            self.reply_to_status(status['id'], status['account']['username'], "test reply")
         feedback = 10
         return feedback
