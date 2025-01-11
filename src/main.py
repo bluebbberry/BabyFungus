@@ -6,6 +6,7 @@ from federated_learning import FederatedLearning
 from rdf_knowledge_graph import RDFKnowledgeGraph
 from mastodon_client import MastodonClient
 import datetime
+import random
 
 # Load environment variables
 load_dotenv()
@@ -56,6 +57,8 @@ class BabyFungus:
 
                 switch_team = self.decide_whether_to_switch_team(feedback)
 
+                self.evolve_behavior(feedback)
+
                 logging.info("[SLEEP] Sleeping for 5 seconds")
                 time.sleep(5)
                 i = i + 1
@@ -83,6 +86,13 @@ class BabyFungus:
         switch_decision = feedback < self.feedback_threshold
         logging.info(f"[DECISION] Switch team: {switch_decision}")
         return switch_decision
+
+    def evolve_behavior(self, feedback):
+        mutation_chance = 0.1  # 10% chance to mutate
+        if random.random() < mutation_chance:
+            old_threshold = self.feedback_threshold
+            self.feedback_threshold *= random.uniform(0.9, 1.1)  # Randomly adjust threshold
+            logging.info(f"[EVOLVE] Feedback threshold mutated from {old_threshold} to {self.feedback_threshold}")
 
 if __name__ == "__main__":
     logging.info("[STARTUP] Launching Baby Fungus instance")
