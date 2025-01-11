@@ -3,18 +3,16 @@ import numpy as np
 import logging
 import time
 from rdf_knowledge_graph import RDFKnowledgeGraph
-from mastodon_client import MastodonClient
 import os
 
 logging.basicConfig(level=logging.INFO)
 
 class FederatedLearning:
-    def __init__(self, model_size=3, learning_rate=0.01):
+    def __init__(self, mastodonClient, model_size=3, learning_rate=0.01):
         self.model = np.random.rand(model_size)
         self.local_gradients = np.zeros_like(self.model)
         self.learning_rate = learning_rate
-        self.rdf_kg = RDFKnowledgeGraph(fuseki_server=os.getenv("FUSEKI_SERVER_UPDATE_URL"), fuseki_query=os.getenv("FUSEKI_SERVER_QUERY_URL"))
-        self.mastodon_api = MastodonClient()
+        self.rdf_kg = RDFKnowledgeGraph(mastodonClient=mastodonClient, fuseki_server=os.getenv("FUSEKI_SERVER_UPDATE_URL"), fuseki_query=os.getenv("FUSEKI_SERVER_QUERY_URL"))
 
     def train(self, model, updates):
         logging.info("Initializing training with provided model and updates.")
@@ -49,7 +47,7 @@ class FederatedLearning:
             logging.info("Saving the updated model to the knowledge graph.")
             self.rdf_kg.save_to_knowledge_graph(self.model)
 
-            logging.info("Posting model update to Mastodon.")
-            self.mastodon_api.post_status(f"Model updated: {self.model.tolist()}")
-
             time.sleep(60)
+
+    def generate_reply(self, request):
+        return "My test model is " + str(self.model)
