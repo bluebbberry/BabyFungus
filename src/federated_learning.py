@@ -9,11 +9,11 @@ import random
 logging.basicConfig(level=logging.INFO)
 
 class FederatedLearning:
-    def __init__(self, mastodonClient, model_size=3, learning_rate=0.01):
+    def __init__(self, mastodon_client, model_size=3, learning_rate=0.01):
         self.model = np.random.rand(model_size)
         self.local_gradients = np.zeros_like(self.model)
         self.learning_rate = learning_rate
-        self.rdf_kg = RDFKnowledgeGraph(mastodonClient=mastodonClient, fuseki_server=os.getenv("FUSEKI_SERVER_UPDATE_URL"), fuseki_query=os.getenv("FUSEKI_SERVER_QUERY_URL"))
+        self.rdf_kg = RDFKnowledgeGraph(mastodon_client=mastodon_client, fuseki_server=os.getenv("FUSEKI_SERVER_UPDATE_URL"), fuseki_query=os.getenv("FUSEKI_SERVER_QUERY_URL"))
 
     def train(self, model, updates):
         logging.info("Initializing training with provided model and updates.")

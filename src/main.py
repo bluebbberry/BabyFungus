@@ -21,9 +21,9 @@ class BabyFungus:
     def __init__(self):
         logging.info("[INIT] Initializing Baby Fungus instance")
         self.mastodon = MastodonClient()
-        self.rdf_kg = RDFKnowledgeGraph(mastodonClient=self.mastodon,
-            fuseki_server=os.getenv("FUSEKI_SERVER_UPDATE_URL"),
-            fuseki_query=os.getenv("FUSEKI_SERVER_QUERY_URL"))
+        self.rdf_kg = RDFKnowledgeGraph(mastodon_client=self.mastodon,
+                                        fuseki_server=os.getenv("FUSEKI_SERVER_UPDATE_URL"),
+                                        fuseki_query=os.getenv("FUSEKI_SERVER_QUERY_URL"))
         self.rdf_kg.insert_gradient(2)
         self.rdf_kg.retrieve_all_gradients(None)
         self.fl = FederatedLearning(self.mastodon)
