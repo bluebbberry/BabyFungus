@@ -2,19 +2,17 @@
 import requests
 from rdflib import Graph, Namespace, Literal
 import logging
-from mastodon_client import MastodonClient
-import time
 
 logging.basicConfig(level=logging.INFO)
 
 class RDFKnowledgeGraph:
-    def __init__(self, fuseki_server, fuseki_query, base_url="http://localhost:3030", dataset="my-knowledge-base"):
+    def __init__(self, fuseki_server, fuseki_query, mastodonClient, base_url="http://localhost:3030", dataset="my-knowledge-base"):
         self.FUSEKI_SERVER = fuseki_server
         self.FUSEKI_QUERY = fuseki_query
         self.DATA_NS = Namespace("http://example.org/data/")
         self.graph = Graph()
         self.graph.bind("data", self.DATA_NS)
-        self.mastodon_client = MastodonClient()
+        self.mastodon_client = mastodonClient
         self.update_url = f"{base_url}/{dataset}/update"
         self.sparql_url = f"{base_url}/{dataset}/query"
 

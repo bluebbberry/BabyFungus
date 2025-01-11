@@ -20,13 +20,12 @@ class BabyFungus:
     def __init__(self):
         logging.info("[INIT] Initializing Baby Fungus instance")
         self.mastodon = MastodonClient()
-        self.rdf_kg = RDFKnowledgeGraph(
+        self.rdf_kg = RDFKnowledgeGraph(mastodonClient=self.mastodon,
             fuseki_server=os.getenv("FUSEKI_SERVER_UPDATE_URL"),
-            fuseki_query=os.getenv("FUSEKI_SERVER_QUERY_URL")
-        )
+            fuseki_query=os.getenv("FUSEKI_SERVER_QUERY_URL"))
         self.rdf_kg.insert_gradient(2)
         self.rdf_kg.retrieve_all_gradients(None)
-        self.fl = FederatedLearning()
+        self.fl = FederatedLearning(self.mastodon)
         self.feedback_threshold = float(os.getenv("FEEDBACK_THRESHOLD", 0.5))
         logging.info(f"[CONFIG] Feedback threshold set to {self.feedback_threshold}")
 
@@ -68,6 +67,8 @@ class BabyFungus:
         try:
             logging.info("[TRAINING] Starting model training")
             model, gradients = self.fl.train(model, updates)
+            logging.info("Posting model update to Mastodon.")
+            self.mastodon.post_status(f"Model updated: {self.fl.model.tolist()}")
             logging.info(f"[RESULT] Model trained successfully. Model: {model.tolist()}")
 
             self.rdf_kg.save_model(gradients)
